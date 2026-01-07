@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBD RINO</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial";
+        }
+
+        body {
+            background: #b39eb5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #ffc9c9;
+            padding: 2rem;
+            /* border-radius: 10px; */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h1 {
+            color: #ff6e6e;
+            margin-bottom: 5px;
+        }
+
+        .card p {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #c75050;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            animation: pop 0.5s ease-in-out;
+        }
+
+        .gift-fly {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        .fly-item {
+            position: absolute;
+            font-size: 35px;
+            animation: flyForward 3s ease-out forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes flyForward {
+            0% {
+                transform: translate(-50%, 0) scale(0.3);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(calc(-50% + var(--x)),
+                        calc(-70vh + var(--y))) scale(var(--s));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gift-fly" id="fly"></div>
+    <div class="container">
+        <div class="card">
+            <label class="env" for="open">
+                <div class="base"></div>
+                <div class="flap"></div>
+                <div class="seal">🎁</div>
+            </label>
+
+            <h1>Hi my love</h1>
+            <p>I made this just for you!</p>
+            <p>just play a mini game to get your present &#127873</p>
+            <a href="game.html" class="btn">Start Game</a>
+        </div>
+    </div>
+</body>
+
+<script>
+    const emojis = ["🎁", "🎉", "💖", "🥰", "✨"];
+    const fly = document.getElementById("fly");
+
+    function spawnEmoji() {
+        const el = document.createElement("div");
+        el.className = "fly-item";
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.bottom = "-30px";
+        el.style.setProperty("--x", (Math.random() * 200 - 100) + "px");
+        el.style.setProperty("--y", Math.random() * 200 + "px");
+        el.style.setProperty("--s", (Math.random() * 1.2 + 0.6));
+
+        fly.appendChild(el);
+
+        setTimeout(() => el.remove(), 3000);
+    }
+
+    // munculin banyak emoji
+    for (let i = 0; i < 35; i++) {
+        setTimeout(spawnEmoji, i * 80);
+    }
+
+</script>
+
+</html>

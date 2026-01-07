@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>play a game</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial";
+        }
+
+        body {
+            background: #eeff8d;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+
+        .card {
+            background: #a0e7e5;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .progress {
+            margin: 20px 0;
+            font-size: 14px;
+            max-width: 600px;
+            width: 100%;
+            align-items: center;
+            align-content: center;
+            justify-content: center;
+        }
+
+        .bar {
+            background: #d0f0ee;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            width: 20%;
+            background: #ff6e6e;
+            transition: .4s;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .question-box {
+            background: #e06d6d;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .quiz-wrapper {
+            width: 100%;
+            background-color: #a0e7e5;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+            width: 100%;
+            margin: 20px auto 0;
+        }
+
+        .opt {
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            background: #d391df;
+        }
+
+        .opt:hover {
+            background: #ba68c9;
+        }
+
+        .opt.correct {
+            background: #c8f7c5;
+            animation: pop 0.4s ease;
+        }
+
+        .opt.wrong {
+            background: #ffd6d6;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(.9);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .true {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .false {
+            color: #c62828;
+        }
+
+        .popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .popup.show {
+            display: flex;
+        }
+
+        .popup-box {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: 800;
+            animation: pop 0.4s ease;
+        }
+
+        .popup-box.true {
+            color: #2e7d32;
+        }
+
+        .popup-box.false {
+            color: #c62828;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(.6);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* HADIAH JATUH */
+        .gift-rain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        .gift {
+            position: absolute;
+            top: -50px;
+            font-size: 32px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="sound-correct" src="sound/benar.mpeg"></audio>
+    <audio id="sound-wrong" src="sound/salah.mpeg"></audio>
+    <div class="gift-rain"></div>
+
+    <div class="quiz-container">
+
+        <div class="card">
+            <h1>🧠🤓 MINI QUIZ 🤔💪🏻</h1><br>
+            <p>
+                gweh punya 5 pertanyaan yang harus kamu jawab dengan benar
+                buat redeem gift nya!
+            </p>
+        </div>
+
+        <div class="progress">
+            <span id="progressText">Pertanyaan 1 dari 5</span>
+            <div class="bar">
+                <div class="fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="quiz-wrapper">
+            <div class="question-box">
+                <h3 id="question"></h3>
+            </div>
+            <div class="options">
+                <button class="opt" onclick="checkAnswer(0)">Option 1</button>
+                <button class="opt" onclick="checkAnswer(1)">Option 2</button>
+                <button class="opt" onclick="checkAnswer(2)">Option 3</button>
+                <button class="opt" onclick="checkAnswer(3)">Option 4</button>
+            </div>
+
+            <p id="feedback"></p>
+
+        </div>
+
+        <div class="popup" id="popup">
+            <div class="popup-box" id="popupText">BENAR 💖</div>
+        </div>
+
+</body>
+
+<script>
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.querySelectorAll(".opt");
+
+    const soundCorrect = document.getElementById("sound-correct");
+    const soundWrong = document.getElementById("sound-wrong");
+    const popup = document.getElementById("popup");
+    const popupText = document.getElementById("popupText");
+
+    const questions = [
+        {
+            q: "whooo the person mostly make a drama ???😆",
+            options: ["Aku 🥺", "Kamu 😏", "Dua-duanya 💕", "Ga ngaku 😆"],
+            answer: 0,
+        },
+        {
+            q: "whooo the first miss each other ???🥰",
+            options: ["Aku 🥺", "Kamu 😏", "Dua-duanya 💕", "Ga ngaku 😆"],
+            answer: 2
+        },
+        {
+            q: "whooo the plan dates more often ???💖",
+            options: ["Aku 🥺", "Kamu 😏", "Dua-duanya 💕", "Ga ngaku 😆"],
+            answer: 2
+        }
+        ,
+        {
+            q: "whooo the best cook ???🍳",
+            options: ["Aku 🥺", "Kamu 😏", "Dua-duanya 💕", "Ga ngaku 😆"],
+            answer: 1
+        },
+        {
+            q: "when i say 'handsome' you think of ???😆",
+            options: ["after take a bath 🛁", "when wearing red cloth 💃", "when u come home 🏠", "send selfie 💁"],
+            answer: 2
+        }
+
+
+
+    ];
+
+    let current = 0;
+
+    // ===== LOAD QUESTION =====
+    function loadQuestion() {
+        questionEl.textContent = questions[current].q;
+
+        optionsEl.forEach((btn, i) => {
+            btn.textContent = questions[current].options[i];
+            btn.className = "opt";
+            btn.disabled = false;
+        });
+
+        updateProgress();
+    }
+
+    // ===== PROGRESS =====
+    function updateProgress() {
+        const total = questions.length;
+        const percent = ((current + 1) / total) * 100;
+
+        progressFill.style.width = percent + "%";
+        progressText.textContent = `Pertanyaan ${current + 1} dari ${total}`;
+    }
+
+    // ===== POPUP =====
+    function showPopup(text, type) {
+        popupText.textContent = text;
+        popupText.className = "popup-box " + type;
+        popup.classList.add("show");
+
+        setTimeout(() => {
+            popup.classList.remove("show");
+        }, 1200);
+    }
+
+    // ===== CHECK ANSWER =====
+    function checkAnswer(index) {
+        const correct = questions[current].answer;
+
+        optionsEl.forEach(btn => btn.disabled = true);
+
+        if (index === correct) {
+            soundCorrect.currentTime = 0;
+            soundCorrect.play();
+            showPopup("BENAR 💖😍", "true");
+        } else {
+            soundWrong.currentTime = 0;
+            soundWrong.play();
+            showPopup("SALAH 😆💔", "false");
+        }
+
+        setTimeout(() => {
+            current++;
+            if (current < questions.length) {
+                loadQuestion();
+            } else {
+                document.body.innerHTML = 
+                `<h1 style="text-align:center;margin-top:40vh">🎁 HADIAH MENUNGGU 💝 </h1>
+                <div class="gift-rain"></div>`;
+                dropGifts(); // ⬅️ INI PENTING
+            }
+
+        }, 1300);
+    }
+
+    function dropGifts() {
+        const container = document.querySelector('.gift-rain');
+        const emojis = ['🎁', '💖', '🎉', '🥰', '🧸', '✨'];
+
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                const gift = document.createElement('div');
+                gift.className = 'gift';
+                gift.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+                gift.style.left = Math.random() * 100 + 'vw';
+                gift.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+                container.appendChild(gift);
+
+                setTimeout(() => gift.remove(), 4000);
+            }, i * 150);
+        }
+    }
+
+    // START
+    loadQuestion();
+</script>
+
+</html>
